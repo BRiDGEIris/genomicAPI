@@ -72,5 +72,7 @@ Install your calculator app
         $ cd ../../..
         $ sudo ./build/env/bin/python tools/app_reg/app_reg.py --install calculator
         
-        
+Restart the Hue service to see your changes:
+
+        $ sudo service hue restart
         
