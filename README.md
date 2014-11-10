@@ -59,8 +59,8 @@ From here on, we are considering you are working on the Cloudera VM.
 
 Open a terminal in your VM:
 
-        $ cd /usr/lib/hue/build/env/bin 
-        $ sudo ./hue create_desktop_app calculator
+        $ cd sr/lib/hue/apps
+        $ sudo ./usr/lib/hue/build/env/bin/hue create_desktop_app calculator
         
 If your hue directory is not the one mentioned here above, find it by:
 
@@ -68,9 +68,7 @@ If your hue directory is not the one mentioned here above, find it by:
         
 Install your calculator app
 
-        $ mv calculator/ ../../../
-        $ cd ../../..
-        $ sudo ./build/env/bin/python tools/app_reg/app_reg.py --install calculator
+        $ sudo ./../build/env/bin/python ../tools/app_reg/app_reg.py --install calculator
         
 Restart the Hue service to see your changes:
 
