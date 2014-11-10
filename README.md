@@ -66,5 +66,11 @@ If your hue directory is not the one mentioned here above, find it by:
 
         $ sudo whereis hue
         
+Install your calculator app
 
+        $ mv calculator/ ../../../
+        $ cd ../../..
+        $ sudo ./build/env/bin/python tools/app_reg/app_reg.py --install calculator
+        
+        
         
