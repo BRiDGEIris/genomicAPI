@@ -76,3 +76,4 @@ Restart the Hue service to see your changes:
 
         $ sudo service hue restart
         
+You should be able to see another tab in your browser: *Other apps*. Click on it, you should see your *calculator* app.
