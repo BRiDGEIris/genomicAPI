@@ -59,7 +59,7 @@ From here on, we are considering you are working on the Cloudera VM.
 
 Open a terminal in your VM:
 
-        $ cd sr/lib/hue
+        $ cd /usr/lib/hue
         $ mkdir myapps
         $ cd myapps
         $ sudo ./usr/lib/hue/build/env/bin/hue create_desktop_app calculator
