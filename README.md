@@ -78,4 +78,4 @@ Restart the Hue service to see your changes:
         
 You should be able to see another tab in your browser: *Other apps*. Click on it, you should see your *calculator* app.
 
-![alt tag](https://github.com/jpoullet2000/genomicAPI/blob/master/docs/images/hueapp.png)
+![calculator app](https://github.com/jpoullet2000/genomicAPI/blob/master/docs/images/hueapp.png)
