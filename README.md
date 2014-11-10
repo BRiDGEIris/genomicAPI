@@ -43,7 +43,8 @@ With *mvn* from maven package or maven3 tarball, and
 *libtidy* for unit test only
 
 Follow the Hue SDK tutorial from http://archive.cloudera.com/cdh/3/hue/sdk/sdk.html#from-30000-feet.
-Install the Hue apps environment. 
+Install the Hue apps environment: 
 
         $ cd hue
         $ make apps
+
