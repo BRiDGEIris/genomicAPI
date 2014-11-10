@@ -14,7 +14,11 @@ Download cloudera virtual box image:
 Decompressed the 7z to get a vmdk file
 Click right on the zipped file and select Extract here
 
-Start your Cloudera image (click on New VM, choose centOS as OS, select the decompressed .vmdk you just downloaded) In your Cloudera VM desktop, open a terminal. 
+Start your Cloudera image (click on New VM, choose centOS as OS, select the decompressed .vmdk you just downloaded).
+
+----
+
+If you do not use the cloudera VM, you need to install the hue sdk 
 Download hue: 
 
         $ git clone https://github.com/cloudera/hue.git
@@ -48,3 +52,4 @@ Install the Hue apps environment:
         $ cd hue
         $ make apps
 
+----
