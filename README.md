@@ -51,7 +51,8 @@ Install the Hue apps environment:
 
         $ cd hue
         $ make apps
-
+        ...
+        
 ----
 
 From here on, we are considering you are working on the Cloudera VM.
@@ -59,7 +60,7 @@ From here on, we are considering you are working on the Cloudera VM.
 Open a terminal in your VM:
 
         $ cd /usr/lib/hue/build/env/bin 
-        $ hue create_desktop_app calculator
+        $ sudo ./hue create_desktop_app calculator
         
 If your hue directory is not the one mentioned here above, find it by:
 
