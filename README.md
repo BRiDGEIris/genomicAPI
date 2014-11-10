@@ -62,7 +62,7 @@ Open a terminal in your VM:
         $ cd /usr/lib/hue
         $ sudo mkdir myapps
         $ cd myapps
-        $ sudo ./usr/lib/hue/build/env/bin/hue create_desktop_app calculator
+        $ sudo /usr/lib/hue/build/env/bin/hue create_desktop_app calculator
         
 If your hue directory is not the one mentioned here above, find it by:
 
