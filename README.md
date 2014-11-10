@@ -39,5 +39,5 @@ Install dependencies:
                 python-simplejson \
                 sqlite-devel 
 
-With mvn from maven package or maven3 tarball, and 
-libtidi for unit test only
+With *mvn* from maven package or maven3 tarball, and 
+*libtidi* for unit test only
