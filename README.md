@@ -5,8 +5,8 @@ genomicAPI is a set of API developed with Hue SDK for accessing genomic data sto
 
 
 
-Development: getting started
-============================
+Development: getting started with Hue SDK
+=========================================
 Download cloudera virtual box image:
 
         $ wget http://www.cloudera.com/content/cloudera/en/documentation/DemoVMs/Cloudera-QuickStart-VM/cloudera_quickstart_vm.html
@@ -40,4 +40,6 @@ Install dependencies:
                 sqlite-devel 
 
 With *mvn* from maven package or maven3 tarball, and 
-*libtidi* for unit test only
+*libtidy* for unit test only
+
+Follow the Hue SDK tutorial from http://archive.cloudera.com/cdh/3/hue/sdk/sdk.html#from-30000-feet.
