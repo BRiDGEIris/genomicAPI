@@ -116,5 +116,5 @@ You should be able to see another tab in your browser: *Other apps*. Click on it
 Acknowledgements
 ================
 
-These apps have been developed within the BridgeIris project funded by Innoviris (http://www.innoviris.be).
+These apps/APIs have been developed within the BridgeIris project funded by Innoviris (http://www.innoviris.be).
 
