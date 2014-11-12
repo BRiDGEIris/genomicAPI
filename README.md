@@ -7,7 +7,7 @@ genomicAPI is a set of apps developed with Hue SDK for accessing genomic data st
 Install a new app in your Hue UI
 ================================
 
-Here is the procedure to install one of the app available in this repository in your Hue interface:
+Here is the procedure to install one of the app available in this repository (see the *apps* directory) in your Hue interface:
 
   1. Move to some directory where to download the git repository
 
