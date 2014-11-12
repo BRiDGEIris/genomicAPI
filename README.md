@@ -31,7 +31,7 @@ Here is the procedure to install one of the app available in this repository (se
   3. Replace the content of ```<path>/<to>/<Hue>/myapps/<appname>``` by the content of the corresponding apps
 
      ```
-     sudo cp -R <path>/<to>/<apps>/genomicAPI/apps/<yourapps>/* <path>/<to>/<Hue>/myapps/<appname>/
+     sudo cp -R <path>/<to>/<apps>/genomicAPI/apps/<yourapps>/* <path>/<to>/<Hue>/myapps/<appname>/src/
      ``` 
 
 
