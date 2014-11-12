@@ -26,9 +26,9 @@ Here is the procedure to install one of the app available in this repository in 
      sudo ./../build/env/bin/python ../tools/app_reg/app_reg.py --install <appname>
      ```
 
-     Where <appname> is the name of the app you want to add. This creates a new app directory structure. 
+     Where ```<appname>``` is the name of the app you want to add. This creates a new app directory structure. 
 
-  3. Replace the content of <path>/<to>/<Hue>/myapps/<appname> by the content of the corresponding apps
+  3. Replace the content of ```<path>/<to>/<Hue>/myapps/<appname>``` by the content of the corresponding apps
 
      ```
      sudo cp -R <path>/<to>/<apps>/genomicAPI/apps/<yourapps>/* <path>/<to>/<Hue>/myapps/<appname>/
