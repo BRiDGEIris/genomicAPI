@@ -2,7 +2,6 @@ Introduction to genomicAPI
 ==========================
 
 genomicAPI is a set of apps developed with Hue SDK for accessing genomic data stored in various databases (HBase, MySQL, etc).
-These apps have been developed within the BridgeIris project funded by Innoviris (http://www.innoviris.be).
 
 
 Install a new app in your Hue UI
@@ -113,3 +112,9 @@ Restart the Hue service to see your changes:
 You should be able to see another tab in your browser: *Other apps*. Click on it, you should see your *calculator* app.
 
 ![calculator app](https://github.com/jpoullet2000/genomicAPI/blob/master/docs/images/hueapp.png)
+
+Acknowledgements
+================
+
+These apps have been developed within the BridgeIris project funded by Innoviris (http://www.innoviris.be).
+
