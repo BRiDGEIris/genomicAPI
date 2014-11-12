@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 DJANGO_APPS = [ "importfiles_updateDB" ]
+NICE_NAME = "Genomic File Import"
 REQUIRES_HADOOP = False
 MENU_INDEX = 100
 ICON = "/importfiles_updateDB/static/art/icon_importfiles_updateDB_48.png"
