@@ -22,3 +22,5 @@ To use this dataset with Impala, you need to first use the magic statement:
   ```
 
 which refreshes the metastore (table catalog). 
+
+![invalidatemetadata](https://github.com/jpoullet2000/genomicAPI/blob/master/docs/images/invalidatemetadata.png)
