@@ -1,7 +1,7 @@
 Introduction to genomicAPI
 ==========================
 
-genomicAPI is a set of apps developed with Hue SDK for accessing genomic data stored in various databases (HBase, MySQL, etc).
+genomicAPI is a set of appsa and APIs developed with Hue SDK for accessing genomic data stored in various databases (HBase, MySQL, etc).
 
 
 Install a new app in your Hue UI
