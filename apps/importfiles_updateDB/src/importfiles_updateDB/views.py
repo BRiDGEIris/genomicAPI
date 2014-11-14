@@ -14,9 +14,39 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import logging
+import json
 
+from desktop.context_processors import get_app_name
 from desktop.lib.django_util import render
+from django.http import HttpResponse
+
 import datetime
 
+from beeswax.design import hql_query
+from beeswax.server import dbms
+from beeswax.server.dbms import get_query_server_config
+
+from impala.models import Dashboard, Controller
+
+# def index(request):
+#   return render('index.mako', request, dict(date=datetime.datetime.now()))
+
 def index(request):
-  return render('index.mako', request, dict(date=datetime.datetime.now()))
+  result = {
+    'status': -1,
+    'data': {}
+  }
+  app_name = get_app_name(request)
+  query_server = get_query_server_config(app_name)  
+  db = dbms.get(request.user, query_server=query_server)
+
+  hql = "SELECT * FROM testset"
+  query = hql_query(hql)
+  handle = db.execute_and_wait(query, timeout_sec=5.0)
+  if handle:
+    data = db.fetch(handle, rows=100)
+    result['data'] = list(data.rows())
+    db.close(handle)
+    
+  return HttpResponse(json.dumps(result), mimetype="application/json")
