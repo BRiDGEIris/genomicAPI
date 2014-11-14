@@ -1,9 +1,7 @@
 Content
 =======
 
-patientvariable.csv
-
-CSV file with 3 columns: patientID, variantID, qual (metric to measure the quality of the variant)
+**patientvariablequal.csv** : CSV file with 3 columns: patientID, variantID, qual (metric to measure the quality of the variant)
 
 Adding new table 
 =================
