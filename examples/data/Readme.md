@@ -14,3 +14,11 @@ Here are the steps to follow:
   4. Click on *Create a new table from a file*
   5. Follow the steps as they appear on the screen (you can define the column names in the last step)
 
+Here you go. You can use it directly in the Hive query text field.
+To use this dataset with Impala, you need to first use the magic statement:
+
+  ```
+  INVALIDATE METADATA
+  ```
+
+which refreshes the metastore (table catalog). 
