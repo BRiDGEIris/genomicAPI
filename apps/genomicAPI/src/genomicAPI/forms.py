@@ -1,15 +1,23 @@
-# Licensed to Cloudera, Inc. under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  Cloudera, Inc. licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+from django import forms
+
+class query_form(forms.Form):
+  query_types = ((0, 'genomic API'), (1, 'Google Genomics'), (2, 'HBase'), (3, 'Hive'))
+  query_type = forms.ChoiceField(choices=query_types)
+  query = forms.CharField(min_length=1,max_length=2000, label="Query")
+  
+  
+class query_insert_form(forms.Form):
+  file_id = forms.CharField(min_length=1,max_length=255, label="File id")
+  samples_ids = forms.CharField(min_length=1,max_length=300000, label="Samples ids")
+  import_file = forms.CharField(min_length=1,max_length=500, label="File path")
+  
+  def __init__(self,*args,**kwargs):
+    self.files = kwargs.pop('files')
+    super(query_insert_form, self).__init__(*args, **kwargs)
+    self.import_file = forms.ChoiceField(choices=self.files)
+       
+    
+    
+    
+    
+    

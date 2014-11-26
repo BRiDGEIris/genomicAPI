@@ -32,7 +32,9 @@
   text-align: center;
   font-style: italic;
 }
-
+.genomicAPI label{
+  color: red;
+}
 .genomicAPI #queryForm {
   text-align: center;
 }
