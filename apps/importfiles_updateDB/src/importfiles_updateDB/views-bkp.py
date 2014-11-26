@@ -37,20 +37,16 @@ def index(request):
     'status': -1,
     'data': {}
   }
-  # app_name = get_app_name(request)
-  # query_server = get_query_server_config(app_name)  
-  query_server = get_query_server_config(name='impala')
+  app_name = get_app_name(request)
+  query_server = get_query_server_config(app_name)  
   db = dbms.get(request.user, query_server=query_server)
-    
 
-  #hql = "SELECT * FROM testset"
-  hql = "INSERT INTO TABLE testset ( patientid,variantid,qual ) VALUES ( 'patient11','variant23',29);"
+  hql = "SELECT * FROM testset"
   query = hql_query(hql)
   handle = db.execute_and_wait(query, timeout_sec=5.0)
   if handle:
     data = db.fetch(handle, rows=100)
     result['data'] = list(data.rows())
     db.close(handle)
-
+    
   return HttpResponse(json.dumps(result), mimetype="application/json")
-  

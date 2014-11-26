@@ -1,5 +1,6 @@
 The Genomic File Import application lets you import your FASTQ, BAM and VCF files to the centralized system. 
-Actually the files themselves are copied into your home HDFS directory (keeping the same name) and into another centralized directory for archiving. Note that the path to the centralized directory is stored in the clinical/phenomic database. The VCF files are automatically converted to an AVRO format and also stored into the centralized directory. In addition the generated AVRO files are uploaded into HBase. All these processes are done transparently to the user such that he does not have to care about it. 
+Actually the files themselves should be first uploaded into your home HDFS directory. 
+The user selects files from the list of available files (must be .fastq, .bam or .vcf files) and submit. The files are then archived into a centralized directory. Note that the path to the centralized directory is stored in the clinical/phenomic database. In addition, the VCF files are automatically converted to an AVRO format and also stored into the centralized directory. In addition the generated AVRO files are uploaded into HBase. All these processes are done transparently to the user such that he does not have to care about it. 
 
 Note that the directory tree in the centralized system is the following: 
 
