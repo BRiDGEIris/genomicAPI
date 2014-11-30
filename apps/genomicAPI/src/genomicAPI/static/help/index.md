@@ -1,1 +1,44 @@
-Help for your app, written in [MarkDown](http://daringfireball.net/projects/markdown/syntax) syntax.
+IMPORTANT: current code is for test purpose and it is far from perfect.
+
+****************
+* Requirements *
+****************
+Library to install for python: pycurl 
+Data uploaded should be added to user/hdfs/data/. Subfolders are not taken into account yet.
+Data compressed will be uploaded to user/hdfs/compressed_data/. 
+Those folders should be manually created by the developer if they do not exist yet.
+
+Change the privileges for the application does not work, do it for hue in general (dumb way to do it, but it works):
+cd /usr/lib/
+sudo find hue -type d -exec chmod 0777 {} \;
+sudo find hue -type f -exec chmod 0777 {} \;
+
+
+*****************
+****** API ******
+*****************
+
+Api Access (authentification)
+curl --data "username=cloudera&password=cloudera" -c "cookies.txt" -b "cookies.txt" -i -H "Accept: application/x-www-form-urlencoded" -H "Content-type: application/x-www-form-urlencoded" -X POST http://quickstart.cloudera:8888/accounts/login/
+
+Api Access (requête)
+ - Search for files containing the <CUSTOMER_SAMPLE_ID> 
+    (note for the developers: the customer_sample_id in db is a little bit different than this one)
+    curl -c "cookies.txt" -b "cookies.txt" -H "Accept: application/json" -H "Content-type: application/json" -X GET 
+    http://quickstart.cloudera:8888/genomicAPI/api/files/search/<CUSTOMER_SAMPLE_ID>/
+    Return a list of files containing <CUSTOMER_SAMPLE_ID> like [[customer_file_id, hdfs_file_path], ...]
+
+
+
+***************************
+***** Personal Notes ******
+***************************
+Create a file
+curl -i -X PUT "http://localhost:14000/webhdfs/v1/user/hdfs/data/coucou.txt?op=CREATE
+                    [&overwrite=<true|false>][&blocksize=<LONG>][&replication=<SHORT>]
+                    [&permission=<OCTAL>][&buffersize=<INT>]"
+Adding data
+curl -c "cookies.txt" -b "cookies.txt" -H "Accept: application/json" -H "Content-type: application/octet-stream" -i -X PUT -T filename "http://localhost:14000/webhdfs/v1/user/hdfs/data/tmp_file?op=CREATE&user.name=cloudera&data=true"
+
+
+

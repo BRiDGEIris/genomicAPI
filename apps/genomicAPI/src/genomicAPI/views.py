@@ -172,9 +172,10 @@ def api_search_sample_id(request, sample_id):
   #Connexion db
   query_server = get_query_server_config(name='impala')
   db = dbms.get(request.user, query_server=query_server)
+  customer_sample_id = str(request.user.id)+"_"+sample_id  
     
   #Selecting the files related to the sample id
-  hql = "SELECT sample_files.file_path FROM sample_files JOIN map_sample_id ON sample_files.internal_sample_id = map_sample_id.internal_sample_id WHERE map_sample_id.customer_sample_id = '"+sample_id+"';"
+  hql = "SELECT sample_files.id, sample_files.file_path FROM sample_files JOIN map_sample_id ON sample_files.internal_sample_id = map_sample_id.internal_sample_id WHERE map_sample_id.customer_sample_id = '"+customer_sample_id+"';"
   query = hql_query(hql)
   handle = db.execute_and_wait(query, timeout_sec=5.0)
   if handle:
@@ -236,7 +237,7 @@ def api_insert_general(request):
       tmp = samples_ids.split('\n')
       for current_id in tmp:
         current_id = current_id.strip()
-        if current_id:
+        if len(current_id) > 0:
           
           customer_sample_id = str(request.user.id)+"_"+current_id
           internal_sample_id = ""
@@ -249,11 +250,8 @@ def api_insert_general(request):
             #If yes, we take the same as before.
             data = db.fetch(handle, rows=1)
             tmp = list(data.rows())
-            fprint(str(tmp))
             if(len(tmp) > 0):
-              re = tmp.pop().pop()
-              fprint(str(re))
-              internal_sample_id = re
+              internal_sample_id = tmp.pop().pop()
           
           if len(internal_sample_id) == 0:
             #If not, we create a new customer_sample_id and save it 
@@ -340,8 +338,8 @@ def create_random_sample_id():
   if len(str(minute)) == 1:
     minute = "0"+str(minute)
   
-  randomId = str(y)+str(m)+str(d)+str(h)+str(minute)
-  randomId += "_"+str(randrange(100000,999999))
+  randomId = str(randrange(100000,999999))
+  randomId += "_"+str(y)+str(m)+str(d)+str(h)+str(minute)
   return randomId
   
 def create_random_file_id():
