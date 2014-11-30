@@ -32,9 +32,43 @@
   text-align: center;
   font-style: italic;
 }
-.genomicAPI label{
-  color: red;
-}
-.genomicAPI #queryForm {
+
+/* General */
+.genomicAPI .info {
+  display: inline-block;
+  width: 100%;
   text-align: center;
+}
+
+/* query.mako */
+.genomicAPI .queryForm .left-box{
+  display: inline-block;
+  width: 10%;
+  text-align: right;
+  vertical-align: top;
+}
+
+.genomicAPI .queryForm .right-box{
+  display: inline-block;
+  width: 80%;
+  text-align: left;
+}
+
+/* query.mako, query_insert.mako */
+.genomicAPI .queryForm, .genomicAPI .insertForm {
+  text-align: center;
+}
+
+/* query_insert.mako */
+.genomicAPI .insertForm .left-box{
+  display: inline-block;
+  width: 40%;
+  text-align: right;
+  vertical-align: top;
+}
+
+.genomicAPI .insertForm .right-box{
+  display: inline-block;
+  width: 55%;
+  text-align: left;
 }
