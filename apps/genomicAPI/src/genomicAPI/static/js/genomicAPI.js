@@ -30,7 +30,7 @@ $(document).ready(function() {
      //Sending the request
      $.ajax({
             type: 'POST',
-            url: '/genomicAPI/api/insert/general/?user.name=cloudera',
+            url: '/genomicAPI/api/general/insert/?user.name=cloudera',
             data: params,        
             dataType: 'html',
             contentType: "application/json",    

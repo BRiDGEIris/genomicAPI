@@ -174,7 +174,7 @@ def api_search_sample_id(request, sample_id):
   db = dbms.get(request.user, query_server=query_server)
     
   #Selecting the files related to the sample id
-  hql = "SELECT sample_files.file_path FROM sample_files JOIN map_sample_id ON sample_files.internal_sample_id = map_sample_id.internal_sample_id WHERE map_sample_id.id = '"+sample_id+"';"
+  hql = "SELECT sample_files.file_path FROM sample_files JOIN map_sample_id ON sample_files.internal_sample_id = map_sample_id.internal_sample_id WHERE map_sample_id.customer_sample_id = '"+sample_id+"';"
   query = hql_query(hql)
   handle = db.execute_and_wait(query, timeout_sec=5.0)
   if handle:
@@ -229,20 +229,43 @@ def api_insert_general(request):
       #Connexion to the db
       query_server = get_query_server_config(name='impala')
       db = dbms.get(request.user, query_server=query_server)
-     
-      #We add the information of the file to the db
       dt = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-      query = hql_query("INSERT INTO TABLE sample_files VALUES ('"+file_id+"', '"+file_random_id+"', '"+destination+"', '"+file_type+"', '"+dt+"', '"+dt+"')")
-      handle = db.execute_and_wait(query, timeout_sec=5.0)
-      
-      #We add the eventual samples ids to the db
+     
+      #We insert the data to the db
+      #TODO: Not very optimized if we have 100 samples ids to insert...
       tmp = samples_ids.split('\n')
       for current_id in tmp:
         current_id = current_id.strip()
         if current_id:
-          query = hql_query("INSERT INTO TABLE map_sample_id VALUES ('internal_"+current_id.strip()+"', '"+current_id.strip()+"', '"+dt+"', '"+dt+"');")
+          
+          customer_sample_id = str(request.user.id)+"_"+current_id
+          internal_sample_id = ""
+          
+          #We check if we already have an internal_sample_id for the customer_sample_id given
+          query = hql_query("SELECT internal_sample_id FROM map_sample_id WHERE customer_sample_id = '"+customer_sample_id+"' LIMIT 1;")
           handle = db.execute_and_wait(query, timeout_sec=5.0)
- 
+          
+          if handle:
+            #If yes, we take the same as before.
+            data = db.fetch(handle, rows=1)
+            tmp = list(data.rows())
+            fprint(str(tmp))
+            if(len(tmp) > 0):
+              re = tmp.pop().pop()
+              fprint(str(re))
+              internal_sample_id = re
+          
+          if len(internal_sample_id) == 0:
+            #If not, we create a new customer_sample_id and save it 
+            internal_sample_id = str(request.user.id)+"_"+create_random_sample_id()
+            
+            query = hql_query("INSERT INTO map_sample_id VALUES('"+internal_sample_id+"', '"+customer_sample_id+"', '"+dt+"', '"+dt+"');")
+            handle = db.execute_and_wait(query, timeout_sec=5.0)
+        
+          #We can insert the data now.
+          query = hql_query("INSERT INTO TABLE sample_files VALUES ('"+file_id+"', '"+internal_sample_id+"', '"+destination+"', '"+file_type+"', '"+dt+"', '"+dt+"')")
+          handle = db.execute_and_wait(query, timeout_sec=5.0)
+     
       #End
       result['data'] = 'Data correctly added.'
       
@@ -301,6 +324,26 @@ def upload_cron_information(url, filename):
   fprint(fout.getvalue())
   print fout.getvalue()
 
+def create_random_sample_id():
+  now = datetime.datetime.now()
+  y = now.year
+  m = now.month
+  d = now.day
+  h = now.hour
+  minute = now.minute
+  if len(str(m)) == 1:
+    m = "0"+str(m)
+  if len(str(d)) == 1:
+    d = "0"+str(d)
+  if len(str(h)) == 1:
+    h = "0"+str(h)
+  if len(str(minute)) == 1:
+    minute = "0"+str(minute)
+  
+  randomId = str(y)+str(m)+str(d)+str(h)+str(minute)
+  randomId += "_"+str(randrange(100000,999999))
+  return randomId
+  
 def create_random_file_id():
   now = datetime.datetime.now()
   y = now.year
