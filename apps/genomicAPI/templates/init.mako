@@ -11,7 +11,7 @@ ${shared.menubar(section='query')}
   <div class="card">
     <h2 class="card-heading simple">Insert/Upload Data</h2>
     <div class="card-body">
-           Data initialized.<br/>
+        Data initialized.<br/>
     </div>
   </div>
 </div>

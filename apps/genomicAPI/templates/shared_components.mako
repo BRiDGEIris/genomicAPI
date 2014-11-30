@@ -1,3 +1,5 @@
+<link rel="stylesheet" href="/genomicAPI/static/css/genomicAPI.css">
+<link rel="stylesheet" href="/genomicAPI/static/css/genomicAPI.js">
 
 <%!
 def is_selected(section, matcher):

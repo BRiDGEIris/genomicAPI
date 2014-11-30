@@ -11,7 +11,7 @@ ${shared.menubar(section='history')}
   <div class="card">
     <h2 class="card-heading simple">Welcome on Genomic API!</h2>
     <div class="card-body">
-      <p>It's now ${date}.</p>
+      <p>Hello...</p>
     </div>
   </div>
 </div>
