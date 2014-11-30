@@ -25,12 +25,12 @@ A disk usage quota is assigned to each user such that the user cannot put as man
 
 The file processing workflow is the following: 
 
-  1. Upload of the genomic file to the home directory
+  1. Upload of the genomic file to the home directory (hdfs/data/)
   2. Storing the file in the centralized system
+    * (TODO) Use ajax to submit the form
     * Assignation of a random ID for the file (6 random digits + '_' + date in '20141110' format)
-    * Copy of the file into /user/center/data 
-    * Compression of the file		      
-    * Renaming of the file with the just generated random ID	   
-    * Insert data information in the clinical/genomic database (sampleID, fileID, fileformat)
-  3. If step is not correctly terminated (insertion in database), an error message pops up in the interface and all the files in ```/user/center/data``` and ```/user/<username>/data``` are permanently deleted .
+    * Sequential compression of the file read from the hdfs with the output file on the local file system
+    * Copy of the file into /hdfs/compressed_data/ with the generated random id
+    * Insert data information in the clinical/genomic database (sample_id, file_id, fileformat)
+  3. (TODO) If step is not correctly terminated (insertion in database), an error message pops up in the interface and all the files in ```/user/center/data``` and ```/user/<username>/data``` are permanently deleted .
       

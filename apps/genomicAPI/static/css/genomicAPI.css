@@ -1,5 +1,5 @@
 /*
-	importfiles_updateDB styles
+	genomicAPI styles
 	important: these should be namespaced
 	example:
 		let's say you are creating an app called "calculator"; you should prefix all your styles with your application's name like so
@@ -18,10 +18,23 @@
 	  any elements inside it should also be absolutely positioned
 */
 
-.importfiles_updateDB img.importfiles_updateDB_icon {
+.genomicAPI img.genomicAPI_icon {
 	width: 55px;
 	height: 55px;
 	position: absolute;
 	top: 27px;
 	left: 3px;
+}
+
+.genomicAPI p {
+  display: inline-block;
+  width: 50%;
+  text-align: center;
+  font-style: italic;
+}
+.genomicAPI label{
+  color: red;
+}
+.genomicAPI #queryForm {
+  text-align: center;
 }

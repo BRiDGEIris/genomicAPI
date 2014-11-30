@@ -1,17 +1,17 @@
 <%!from desktop.views import commonheader, commonfooter %>
 <%namespace name="shared" file="shared_components.mako" />
 
-${commonheader("Importfiles Updatedb", "importfiles_updateDB", user) | n,unicode}
-${shared.menubar(section='mytab')}
+${commonheader("Genomicapi", "genomicAPI", user) | n,unicode}
+${shared.menubar(section='query')}
 
 ## Use double hashes for a mako template comment
 ## Main body
 
 <div class="container-fluid">
   <div class="card">
-    <h2 class="card-heading simple">Importfiles Updatedb app is successfully setup!</h2>
+    <h2 class="card-heading simple">Insert/Upload Data</h2>
     <div class="card-body">
-      <p>It's now ${date}.</p>
+           Data initialized.<br/>
     </div>
   </div>
 </div>

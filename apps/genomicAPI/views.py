@@ -8,6 +8,7 @@ import pycurl
 from StringIO import StringIO
 from random import randrange
 import bz2
+import os.path
 
 import logging
 import json
@@ -42,7 +43,7 @@ def query(request):
 @csrf_exempt
 def query_insert(request):
   #we list the different file in the current directory
-  info = get_cron_information('http://localhost:14000/webhdfs/v1/user/hdfs/data/?op=LISTSTATUS')
+  info = get_cron_information("http://localhost:14000/webhdfs/v1/user/hdfs/data/?op=LISTSTATUS")
   files = json.loads(info)
   filesList = {}
   for f in files[u"FileStatuses"][u"FileStatus"]:
@@ -71,7 +72,7 @@ def query_insert(request):
       file_random_id = create_random_file_id()
       
       #Compressing the file and writing it directly in the correct directory
-      path = "data/"+file_id.strip()
+      path = "data/"+selected_file.strip()
       destination = file_random_id+".bz2"
       result = compress_file(path, destination)
       
@@ -81,7 +82,7 @@ def query_insert(request):
      
       #We add the information of the file to the db
       dt = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-      query = hql_query("INSERT INTO TABLE sample_files VALUES ('id_"+path+"', '"+file_random_id+"', '"+destination+"', '"+file_type+"', '"+dt+"', '"+dt+"')")
+      query = hql_query("INSERT INTO TABLE sample_files VALUES ('"+file_id+"', '"+file_random_id+"', '"+destination+"', '"+file_type+"', '"+dt+"', '"+dt+"')")
       handle = db.execute_and_wait(query, timeout_sec=5.0)
       
       #We add the eventual samples ids to the db
@@ -233,39 +234,51 @@ def api_search_sample_id(request, sample_id):
   
 def get_cron_information(url, post_parameters=False):
   buff = StringIO()
-  c = pycurl.Curl()
+  #Adding some parameters to the url
   if "?" in url:
-    c.setopt(c.URL, url+'&user.name=cloudera')
+    url += "&user.name=cloudera"
   else:
-    c.setopt(c.URL, url+'?user.name=cloudera')
+    url += "?user.name=cloudera"
+  fprint("Access to: "+url)
+  
+  c = pycurl.Curl()
+  c.setopt(pycurl.URL, str(url))
   c.setopt(pycurl.HTTPHEADER, ['Accept: application/json'])
   c.setopt(c.WRITEFUNCTION, buff.write)
   #c.setopt(pycurl.VERBOSE, 0)
   c.setopt(pycurl.USERPWD, 'cloudera:cloudera')
   if post_parameters:
+    c.setopt(c.POST, 1)
     c.setopt(c.HTTPPOST, post_parameters)
   c.perform()
   c.close()
   return buff.getvalue()
 
 def upload_cron_information(url, filename):
-  #Adding some parameters to the url
-  c = pycurl.Curl()
-  if "?" in url:
-    c.setopt(c.URL, url+'&user.name=cloudera')
-  else:
-    c.setopt(c.URL, url+'?user.name=cloudera')
+  fout = StringIO()
   
-  #Setting the headers to say that we are uploading a file
-  c.setopt(c.POST, 1)
-  c.setopt(c.HTTPPOST, [('title', 'test'), (('file', (c.FORM_FILE, filename)))])
-  c.setopt(c.VERBOSE, 1)
-  bodyOutput = StringIO()
-  headersOutput = StringIO()
-  c.setopt(c.WRITEFUNCTION, bodyOutput.write)
-  c.setopt(c.HEADERFUNCTION, headersOutput.write)
+  #Adding some parameters to the url
+  if "?" in url:
+    url += "&user.name=cloudera"
+  else:
+    url += "?user.name=cloudera"
+  fprint(url)
+  
+  #Setting the headers to say that we are uploading a file. See http://www.saltycrane.com/blog/2012/08/example-posting-binary-data-using-pycurl/
+  c = pycurl.Curl()
+  c.setopt(pycurl.VERBOSE, 1)  
+  c.setopt(pycurl.WRITEFUNCTION, fout.write)
+  c.setopt(pycurl.URL, str(url))
+  c.setopt(pycurl.UPLOAD, 1)
+  c.setopt(pycurl.READFUNCTION, open(filename, 'rb').read)
+  c.setopt(pycurl.HTTPHEADER, ['Content-Type: application/octet-stream'])
+  filesize = os.path.getsize(filename)
+  c.setopt(pycurl.INFILESIZE, filesize)
   c.perform()
-  print bodyOutput.getvalue()
+  
+  fprint(c.getinfo(pycurl.RESPONSE_CODE))
+  fprint(fout.getvalue())
+  print fout.getvalue()
 
 def create_random_file_id():
   now = datetime.datetime.now()
@@ -273,12 +286,12 @@ def create_random_file_id():
   m = now.month
   d = now.day
   if len(str(m)) == 1:
-    m = "0"+m
+    m = "0"+str(m)
   if len(str(d)) == 1:
-    d = "0"+d
+    d = "0"+str(d)
   
-  randomId = randrange(100000,999999)
-  randomId += "_"+y+m+d
+  randomId = str(randrange(100000,999999))
+  randomId += "_"+str(y)+str(m)+str(d)
   return randomId
   
 def copy_file(origine, destination):
@@ -288,23 +301,46 @@ def compress_file(path, destination):
   data = ""
   
   #Open a temporary file on the local file system (not a big deal) for the compression. It will be deleted after
-  temporary_filename = "tmp.txt"
+  temporary_filename = "tmp."+str(randrange(0,100000))+".txt"
   f = open(temporary_filename,'w')
+  content = "Coucou, comment, ca va?"
+  content_splitted = content.split(',')
   
   #creating a compressor object for sequential compressing
   comp = bz2.BZ2Compressor()
   
-  #Compressing the data sequentially
-  data += comp.compress("Coucou!")
+  #We take the length of the file to compress
+  file_status = get_cron_information("http://localhost:14000/webhdfs/v1/user/hdfs/"+path+"?op=GETFILESTATUS")
+  file_status = json.loads(file_status)
+  file_length = file_status[u"FileStatus"][u"length"]
   
+  #We take part of the file to compress it
+  offset=0
+  while offset < file_length:
+    length = min(file_length,1024*1024)
+    txt = get_cron_information("http://localhost:14000/webhdfs/v1/user/hdfs/"+path+"?op=OPEN&offset="+str(offset)+"&length="+str(length)+"")
+    data += comp.compress(txt)
+    fprint(txt)    
+    
+    #If we have already compressed some data we write them
+    if len(data) > 10*1024*1024:
+      f.write(data)
+      data = ""
+    
+    offset += min(length,1024*1024) #1Mo
+   
   #Flushing the result
   data += comp.flush()
   f.write(data)
   f.close()
     
   #Saving the file to the new repository: http://hadoop.apache.org/docs/r1.0.4/webhdfs.html#APPEND
-  result = get_cron_information('http://localhost:14000/webhdfs/v1/user/hdfs/compressed_data/'+destination+'?op=CREATE&overwrite=false')
-  result = upload_cron_information('http://localhost:14000/webhdfs/v1/user/hdfs/compressed_data/'+destination+'?op=CREATE&overwrite=false', temporary_filename)
-  
-  return True
+  result = upload_cron_information("http://localhost:14000/webhdfs/v1/user/hdfs/compressed_data/"+destination+"?op=CREATE&overwrite=false&data=true", temporary_filename)
+    
+  return result
 
+def fprint(txt):
+  f = open('debug.txt', 'a')
+  f.write(str(txt)+"\n")
+  f.close()
+  return True
