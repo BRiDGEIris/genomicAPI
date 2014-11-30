@@ -41,7 +41,7 @@ setup(
     # deal well with directory globs, so we enumerate
     # the files manually.
     'genomicAPI': expand_package_data(
-      ["src/genomicAPI/templates", "src/genomicAPI/static"],
+      ["src/genomicAPI/templates", "src/genomicAPI/static", "src/genomicAPI/static/genomicAPI.css", "src/genomicAPI/static/css/genomicAPI.css"],
       "src/genomicAPI/")
   }
 )

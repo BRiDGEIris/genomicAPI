@@ -1,0 +1,14 @@
+setup.py
+src/genomicAPI/__init__.py
+src/genomicAPI/forms.py
+src/genomicAPI/models.py
+src/genomicAPI/settings.py
+src/genomicAPI/urls.py
+src/genomicAPI/views.py
+src/genomicAPI.egg-info/PKG-INFO
+src/genomicAPI.egg-info/SOURCES.txt
+src/genomicAPI.egg-info/dependency_links.txt
+src/genomicAPI.egg-info/entry_points.txt
+src/genomicAPI.egg-info/not-zip-safe
+src/genomicAPI.egg-info/requires.txt
+src/genomicAPI.egg-info/top_level.txt
