@@ -18,17 +18,15 @@ sudo find hue -type f -exec chmod 0777 {} \;
 ****** API ******
 *****************
 
-Api Access (authentification)
-curl --data "username=cloudera&password=cloudera" -c "cookies.txt" -b "cookies.txt" -i -H "Accept: application/x-www-form-urlencoded" -H "Content-type: application/x-www-form-urlencoded" -X POST http://quickstart.cloudera:8888/accounts/login/
+Authentification:
+    curl --data "username=cloudera&password=cloudera" -c "cookies.txt" -b "cookies.txt"
+    -X POST http://quickstart.cloudera:8888/accounts/login/
 
-Api Access (requête)
- - Search for files containing the <CUSTOMER_SAMPLE_ID> 
+Request:
+ - Search for files containing the <CUSTOMER_SAMPLE_ID> and return [[customer_file_id, hdfs_file_path], ...]
     (note for the developers: the customer_sample_id in db is a little bit different than this one)
-    curl -c "cookies.txt" -b "cookies.txt" -H "Accept: application/json" -H "Content-type: application/json" -X GET 
+    curl -c "cookies.txt" -b "cookies.txt" -X GET 
     http://quickstart.cloudera:8888/genomicAPI/api/files/search/<CUSTOMER_SAMPLE_ID>/
-    Return a list of files containing <CUSTOMER_SAMPLE_ID> like [[customer_file_id, hdfs_file_path], ...]
-
-
 
 ***************************
 ***** Personal Notes ******
