@@ -14,6 +14,7 @@ urlpatterns = patterns('genomicAPI',
   
   url(r'^query/$', 'views.query'),
   url(r'^query_insert/$', 'views.query_insert'),
+  url(r'^api/insert/general/$', 'views.api_insert_general'),
   url(r'^job/$', 'views.job'),
   url(r'^history/$', 'views.history'),
   

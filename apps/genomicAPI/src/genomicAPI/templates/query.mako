@@ -5,7 +5,6 @@ ${commonheader("Genomicapi", "genomicAPI", user) | n,unicode}
 ${shared.menubar(section='query')}
 
 <link rel="stylesheet" href="/genomicAPI/static/css/genomicAPI.css">
-<link rel="stylesheet" href="/genomicAPI/static/css/genomicAPI.js">
 
 ## Use double hashes for a mako template comment
 ## Main body
@@ -39,7 +38,7 @@ ${shared.menubar(section='query')}
           <label for="query">Query:</label>
         </div>
         <div class="right-box">
-          <textarea class="right-box" rows="5" name="query" cols="100" maxlength="500"></textarea>
+          <textarea rows="5" name="query" cols="100" maxlength="500"></textarea>
           <br/><br/>
         </div>
         <br/>
@@ -50,4 +49,5 @@ ${shared.menubar(section='query')}
     </div>
   </div>
 </div>
+<link rel="stylesheet" href="/genomicAPI/static/js/genomicAPI.js">
 ${commonfooter(messages) | n,unicode}

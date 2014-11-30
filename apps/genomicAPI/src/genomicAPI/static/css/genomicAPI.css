@@ -40,6 +40,26 @@
   text-align: center;
 }
 
+.genomicAPI .great-info {
+  display: inline-block;
+  width: 100%;
+  color: green;
+  font-weight: bold;
+  text-align: center;
+}
+
+.genomicAPI .bad-info {
+  display: inline-block;
+  width: 100%;
+  color: red;
+  font-weight: bold;
+  text-align: center;
+}
+
+.invisible {
+  display: none;
+}
+
 /* query.mako */
 .genomicAPI .queryForm .left-box{
   display: inline-block;
@@ -61,6 +81,13 @@
 
 /* query_insert.mako */
 .genomicAPI .insertForm .left-box{
+  display: inline-block;
+  width: 40%;
+  text-align: right;
+  vertical-align: middle;
+}
+
+.genomicAPI .insertForm .left-top-box{
   display: inline-block;
   width: 40%;
   text-align: right;

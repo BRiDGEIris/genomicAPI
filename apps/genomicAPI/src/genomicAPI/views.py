@@ -50,51 +50,9 @@ def query_insert(request):
     if f[u"pathSuffix"].endswith(".vcf") or f[u"pathSuffix"].endswith(".bam") or f[u"pathSuffix"].endswith(".fastq") or f[u"pathSuffix"].endswith(".fq"):
       filesList[f[u"pathSuffix"]] = "data/"+f[u"pathSuffix"]
   
-  #We check if we have received some data to import
-  formValidated = False
-  if request.method == 'POST':
-    form = query_insert_form(request.POST, files=filesList)
-    if form.is_valid():
-      file_id = form.cleaned_data['file_id']
-      samples_ids = form.cleaned_data['samples_ids']
-      selected_file = form.cleaned_data['import_file']
-      
-      if selected_file.endswith(".vcf"):
-        file_type = "vcf"
-      elif selected_file.endswith(".bam"):
-        file_type = "bam"
-      elif selected_file.endswith("fastq") or selected_file.endswith("fq"):
-        file_type = "fastq"
-      else:
-        file_type = "unknown"
-      
-      #Generating the random id for the file
-      file_random_id = create_random_file_id()
-      
-      #Compressing the file and writing it directly in the correct directory
-      path = "data/"+selected_file.strip()
-      destination = file_random_id+".bz2"
-      result = compress_file(path, destination)
-      
-      #Connexion to the db
-      query_server = get_query_server_config(name='impala')
-      db = dbms.get(request.user, query_server=query_server)
-     
-      #We add the information of the file to the db
-      dt = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-      query = hql_query("INSERT INTO TABLE sample_files VALUES ('"+file_id+"', '"+file_random_id+"', '"+destination+"', '"+file_type+"', '"+dt+"', '"+dt+"')")
-      handle = db.execute_and_wait(query, timeout_sec=5.0)
-      
-      #We add the eventual samples ids to the db
-      tmp = samples_ids.split(',')
-      for current_id in tmp:
-        if current_id:
-          query = hql_query("INSERT INTO TABLE map_sample_id VALUES ('internal_"+current_id.strip()+"', '"+current_id.strip()+"', '"+dt+"', '"+dt+"');")
-          handle = db.execute_and_wait(query, timeout_sec=5.0)
- 
-      #End
-      formValidated = True
   return render('query_insert.mako', request, locals())
+  
+  
   
 def init(request):  
   #connexion to the db
@@ -225,6 +183,69 @@ def api_search_sample_id(request, sample_id):
     result['status'] = 1
     db.close(handle)
 
+  #Returning the data
+  return HttpResponse(json.dumps(result), mimetype="application/json")
+  
+def api_insert_general(request):
+  #we list the different file in the current directory
+  info = get_cron_information("http://localhost:14000/webhdfs/v1/user/hdfs/data/?op=LISTSTATUS")
+  files = json.loads(info)
+  filesList = {}
+  for f in files[u"FileStatuses"][u"FileStatus"]:
+    if f[u"pathSuffix"].endswith(".vcf") or f[u"pathSuffix"].endswith(".bam") or f[u"pathSuffix"].endswith(".fastq") or f[u"pathSuffix"].endswith(".fq"):
+      filesList[f[u"pathSuffix"]] = "data/"+f[u"pathSuffix"]
+  
+  result = {
+    'status': -1,
+    'data': 'Invalid data sent.'
+  }
+  
+  #We check if we have received some data to import
+  formValidated = False
+  if request.method == 'POST':
+    form = query_insert_form(request.POST, files=filesList)
+    if form.is_valid():
+      file_id = form.cleaned_data['file_id']
+      samples_ids = form.cleaned_data['samples_ids']
+      selected_file = form.cleaned_data['import_file']
+      
+      if selected_file.endswith(".vcf"):
+        file_type = "vcf"
+      elif selected_file.endswith(".bam"):
+        file_type = "bam"
+      elif selected_file.endswith("fastq") or selected_file.endswith("fq"):
+        file_type = "fastq"
+      else:
+        file_type = "unknown"
+      
+      #Generating the random id for the file
+      file_random_id = create_random_file_id()
+      
+      #Compressing the file and writing it directly in the correct directory
+      path = "data/"+selected_file.strip()
+      destination = file_random_id+".bz2"
+      result = compress_file(path, destination)
+      
+      #Connexion to the db
+      query_server = get_query_server_config(name='impala')
+      db = dbms.get(request.user, query_server=query_server)
+     
+      #We add the information of the file to the db
+      dt = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+      query = hql_query("INSERT INTO TABLE sample_files VALUES ('"+file_id+"', '"+file_random_id+"', '"+destination+"', '"+file_type+"', '"+dt+"', '"+dt+"')")
+      handle = db.execute_and_wait(query, timeout_sec=5.0)
+      
+      #We add the eventual samples ids to the db
+      tmp = samples_ids.split('\n')
+      for current_id in tmp:
+        current_id = current_id.strip()
+        if current_id:
+          query = hql_query("INSERT INTO TABLE map_sample_id VALUES ('internal_"+current_id.strip()+"', '"+current_id.strip()+"', '"+dt+"', '"+dt+"');")
+          handle = db.execute_and_wait(query, timeout_sec=5.0)
+ 
+      #End
+      result['data'] = 'Data correctly added.'
+      
   #Returning the data
   return HttpResponse(json.dumps(result), mimetype="application/json")
   
