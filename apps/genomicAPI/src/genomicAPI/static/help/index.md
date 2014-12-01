@@ -17,10 +17,11 @@ sudo find hue -type f -exec chmod 0777 {} \;
 ##**API**
 
 ###*Authentification:*
-    ```
-    curl --data "username=cloudera&password=cloudera" -c "cookies.txt" -b "cookies.txt"
-    -X POST http://quickstart.cloudera:8888/accounts/login/
-    ```
+```
+curl --data "username=cloudera&password=cloudera" -c "cookies.txt" -b "cookies.txt"
+-X POST http://quickstart.cloudera:8888/accounts/login/
+```
+
 ###*Request:*
  * Search for files containing the CUSTOMER_SAMPLE_ID and return {[customer_file_id, hdfs_file_path], ...}
     (note for the developers: the customer_sample_id in db is a little bit different than this one)
