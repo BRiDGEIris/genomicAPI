@@ -8,7 +8,8 @@ import pycurl
 from StringIO import StringIO
 from random import randrange
 import bz2
-import os.path
+import os
+import inspect
 
 import logging
 import json
@@ -225,47 +226,60 @@ def api_insert_general(request):
       #Compressing the file and writing it directly in the correct directory
       path = "data/"+selected_file.strip()
       destination = file_random_id+".bz2"
-      result = compress_file(path, destination)
+      try:
+        result = compress_file(path, destination)
+      except Exception:
+        fprint("Impossible to compress and upload the file")
+        result = False
+        pass
       
-      #Connexion to the db
-      query_server = get_query_server_config(name='impala')
-      db = dbms.get(request.user, query_server=query_server)
-      dt = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-     
-      #We insert the data to the db
-      #TODO: Not very optimized if we have 100 samples ids to insert...
-      tmp = samples_ids.split('\n')
-      for current_id in tmp:
-        current_id = current_id.strip()
-        if len(current_id) > 0:
+      #If the compression was okay, we can insert the data in db
+      if result:
+        try:
+          #Connexion to the db
+          query_server = get_query_server_config(name='impala')
+          db = dbms.get(request.user, query_server=query_server)
+          dt = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        except Exception:
+          fprint("Impossible to connect to the database")
+          result = False
+          pass
           
-          customer_sample_id = str(request.user.id)+"_"+current_id
-          internal_sample_id = ""
-          
-          #We check if we already have an internal_sample_id for the customer_sample_id given
-          query = hql_query("SELECT internal_sample_id FROM map_sample_id WHERE customer_sample_id = '"+customer_sample_id+"' LIMIT 1;")
-          handle = db.execute_and_wait(query, timeout_sec=5.0)
-          
-          if handle:
-            #If yes, we take the same as before.
-            data = db.fetch(handle, rows=1)
-            tmp = list(data.rows())
-            if(len(tmp) > 0):
-              internal_sample_id = tmp.pop().pop()
-          
-          if len(internal_sample_id) == 0:
-            #If not, we create a new customer_sample_id and save it 
-            internal_sample_id = str(request.user.id)+"_"+create_random_sample_id()
+      if result:
+        #We insert the data to the db
+        #TODO: Not very optimized if we have 100 samples ids to insert...
+        tmp = samples_ids.split('\n')
+        for current_id in tmp:
+          current_id = current_id.strip()
+          if len(current_id) > 0:
             
-            query = hql_query("INSERT INTO map_sample_id VALUES('"+internal_sample_id+"', '"+customer_sample_id+"', '"+dt+"', '"+dt+"');")
+            customer_sample_id = str(request.user.id)+"_"+current_id
+            internal_sample_id = ""
+            
+            #We check if we already have an internal_sample_id for the customer_sample_id given
+            query = hql_query("SELECT internal_sample_id FROM map_sample_id WHERE customer_sample_id = '"+customer_sample_id+"' LIMIT 1;")
             handle = db.execute_and_wait(query, timeout_sec=5.0)
-        
-          #We can insert the data now.
-          query = hql_query("INSERT INTO TABLE sample_files VALUES ('"+file_id+"', '"+internal_sample_id+"', '"+destination+"', '"+file_type+"', '"+dt+"', '"+dt+"')")
-          handle = db.execute_and_wait(query, timeout_sec=5.0)
-     
-      #End
-      result['data'] = 'Data correctly added.'
+            
+            if handle:
+              #If yes, we take the same as before.
+              data = db.fetch(handle, rows=1)
+              tmp = list(data.rows())
+              if(len(tmp) > 0):
+                internal_sample_id = tmp.pop().pop()
+            
+            if len(internal_sample_id) == 0:
+              #If not, we create a new customer_sample_id and save it 
+              internal_sample_id = str(request.user.id)+"_"+create_random_sample_id()
+              
+              query = hql_query("INSERT INTO map_sample_id VALUES('"+internal_sample_id+"', '"+customer_sample_id+"', '"+dt+"', '"+dt+"');")
+              handle = db.execute_and_wait(query, timeout_sec=5.0)
+          
+            #We can insert the data now.
+            query = hql_query("INSERT INTO TABLE sample_files VALUES ('"+file_id+"', '"+internal_sample_id+"', '"+destination+"', '"+file_type+"', '"+dt+"', '"+dt+"')")
+            handle = db.execute_and_wait(query, timeout_sec=5.0)
+       
+        #End
+        result['data'] = 'Data correctly added.'
       
   #Returning the data
   return HttpResponse(json.dumps(result), mimetype="application/json")
@@ -318,9 +332,8 @@ def upload_cron_information(url, filename):
   c.setopt(pycurl.INFILESIZE, filesize)
   c.perform()
   
-  fprint(c.getinfo(pycurl.RESPONSE_CODE))
-  fprint(fout.getvalue())
-  print fout.getvalue()
+  result = c.getinfo(pycurl.RESPONSE_CODE)
+  return result
 
 def create_random_sample_id():
   now = datetime.datetime.now()
@@ -363,19 +376,26 @@ def compress_file(path, destination):
   data = ""
   
   #Open a temporary file on the local file system (not a big deal) for the compression. It will be deleted after
-  temporary_filename = "tmp."+str(randrange(0,100000))+".txt"
-  f = open(temporary_filename,'w')
-  content = "Coucou, comment, ca va?"
-  content_splitted = content.split(',')
+  try:
+    temporary_filename = "tmp."+str(randrange(0,100000))+".txt"
+    f = open(temporary_filename,'w')
+  except Exception:
+    fprint("Impossible to open a temporary file on the local file system. Are you sure you give enough privileges to the usr/lib/hue directory?")
+    return False
   
   #creating a compressor object for sequential compressing
   comp = bz2.BZ2Compressor()
   
   #We take the length of the file to compress
-  file_status = get_cron_information("http://localhost:14000/webhdfs/v1/user/hdfs/"+path+"?op=GETFILESTATUS")
-  file_status = json.loads(file_status)
-  file_length = file_status[u"FileStatus"][u"length"]
-  
+  try:
+    file_status = get_cron_information("http://localhost:14000/webhdfs/v1/user/hdfs/"+path+"?op=GETFILESTATUS")
+    file_status = json.loads(file_status)
+    file_length = file_status[u"FileStatus"][u"length"]
+  except Exception:
+    fprint("Impossible to take the length of the file.")
+    os.remove(temporary_filename)
+    return False
+    
   #We take part of the file to compress it
   offset=0
   while offset < file_length:
@@ -398,11 +418,26 @@ def compress_file(path, destination):
     
   #Saving the file to the new repository: http://hadoop.apache.org/docs/r1.0.4/webhdfs.html#APPEND
   result = upload_cron_information("http://localhost:14000/webhdfs/v1/user/hdfs/compressed_data/"+destination+"?op=CREATE&overwrite=false&data=true", temporary_filename)
-    
-  return result
+  
+  #We delete the temporary file anyway
+  os.remove(temporary_filename)
+  
+  #If the upload was okay we stop here
+  if result >= 200 and result < 400:
+    return True
+  
+  #We have to delete the uploaded file as it may be corrupted
+  fprint("Impossible to upload the compressed file to hdfs.")
+  res = get_cron_information("http://localhost:14000/webhdfs/v1/user/hdfs/compressed_data/"+destination+"?op=DELETE")
+  fprint("Deleting file: "+destination)
+  
+  return False
 
+def current_line():
+  return inspect.currentframe().f_back.f_lineno
+  
 def fprint(txt):
   f = open('debug.txt', 'a')
-  f.write(str(txt)+"\n")
+  f.write("Line: "+str(current_line)+" in views.py: "+str(txt)+"\n")
   f.close()
   return True

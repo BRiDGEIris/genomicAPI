@@ -41,10 +41,17 @@ $(document).ready(function() {
               content = content.split("'\"");
               content = content[0].split("'");
               
-              $("#result").text(String(content[1]));
-              $("#result").removeClass("bad-info");
-              $("#result").removeClass("great-info");
-              $("#result").addClass("great-info");
+              if(content.length >= 2) {
+                $("#result").text(String(content[1]));
+                $("#result").removeClass("bad-info");
+                $("#result").removeClass("great-info");
+                $("#result").addClass("great-info");
+              } else {
+                $("#result").text("Sorry, an error occurred.");
+                $("#result").removeClass("bad-info");
+                $("#result").removeClass("great-info");
+                $("#result").addClass("bad-info");   
+              }
             }, 
             complete: function(jqXHR) {
               //Values of the form to zero
