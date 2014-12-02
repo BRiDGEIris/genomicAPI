@@ -241,6 +241,7 @@ def api_insert_general(request):
           db = dbms.get(request.user, query_server=query_server)
           dt = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         except Exception:
+          get_cron_information("http://localhost:14000/webhdfs/v1/user/hdfs/compressed_data/"+destination+"?op=DELETE")
           fprint("Impossible to connect to the database")
           result = False
           pass
