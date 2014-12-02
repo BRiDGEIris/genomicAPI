@@ -53,8 +53,6 @@ def query_insert(request):
   
   return render('query_insert.mako', request, locals())
   
-  
-  
 def init(request):  
   #connexion to the db
   query_server = get_query_server_config(name='impala')
@@ -163,13 +161,19 @@ def api_import_variants(request):
   return HttpResponse(json.dumps(result), mimetype="application/json")
   
   
-def api_search_sample_id(request, sample_id):
-  sample_id = str(sample_id)
+@csrf_exempt
+def api_search_sample_id(request):
   result = {
     'status': -1,
     'data': {}
   }
   
+  if request.method != 'POST' or not request.POST or not request.POST['sample_id']:
+    result['status'] = 0 
+    return HttpResponse(json.dumps(result), mimetype="application/json")
+  
+  sample_id = str(request.POST['sample_id'])
+   
   #Connexion db
   query_server = get_query_server_config(name='impala')
   db = dbms.get(request.user, query_server=query_server)
@@ -181,8 +185,8 @@ def api_search_sample_id(request, sample_id):
   handle = db.execute_and_wait(query, timeout_sec=5.0)
   if handle:
     data = db.fetch(handle, rows=100)
-    result['data'] = list(data.rows())
     result['status'] = 1
+    result['data'] = list(data.rows())
     db.close(handle)
 
   #Returning the data

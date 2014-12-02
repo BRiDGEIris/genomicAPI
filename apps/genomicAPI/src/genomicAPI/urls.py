@@ -7,7 +7,7 @@ urlpatterns = patterns('genomicAPI',
   
   url(r'^init/$', 'views.init'),
   
-  url(r'^api/files/search/(?P<sample_id>[a-zA-Z0-9_-]*)/$', 'views.api_search_sample_id'),
+  url(r'^api/files/search$', 'views.api_search_sample_id'), #Post request
   url(r'^api/variants/get/(?P<variant_id>[a-zA-Z0-9_-]*)/$', 'views.api_get_variants'),
   url(r'^api/general/insert/$', 'views.api_insert_general'), #Related to query_insert/
   url(r'^api/variants/search/$', 'views.api_search_variants'),

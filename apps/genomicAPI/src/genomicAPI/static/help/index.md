@@ -30,8 +30,8 @@ curl --data "username=cloudera&password=cloudera" -c "cookies.txt" -b "cookies.t
  * Search for files containing the CUSTOMER_SAMPLE_ID and return {[customer_file_id, hdfs_file_path], ...}
     (note for the developers: the customer_sample_id in db is a little bit different than this one)
     ```    
-    curl -c "cookies.txt" -b "cookies.txt" -X GET 
-    http://quickstart.cloudera:8888/genomicAPI/api/files/search/<CUSTOMER_SAMPLE_ID>/
+    curl --data "sample_id=<CUSTOMER_SAMPLE_ID>" -c "cookies.txt" -b "cookies.txt" -X POST 
+    http://quickstart.cloudera:8888/genomicAPI/api/files/search
     ```
 
 
