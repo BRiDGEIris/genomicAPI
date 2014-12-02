@@ -7,7 +7,6 @@ class query_form(forms.Form):
   
   
 class query_insert_form(forms.Form):
-  file_id = forms.CharField(min_length=1,max_length=255, label="File id")
   samples_ids = forms.CharField(min_length=1,max_length=300000, label="Samples ids")
   import_file = forms.CharField(min_length=1,max_length=500, label="File path")
   

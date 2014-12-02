@@ -28,13 +28,6 @@ ${shared.menubar(section='query')}
           </select>
         </div>
         <br/>
-        <div class="left-box">
-          <label for="file_id">File id: </label>
-        </div>
-        <div class="right-box">
-          <input type="text" name="file_id" id="file_id" maxlength="255" />
-        </div>
-        <br/><br/>
         <div class="left-top-box">
           <label for="samples_ids">Samples ids (one on each line): </label>
         </div>

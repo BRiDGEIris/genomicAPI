@@ -197,7 +197,7 @@ def api_insert_general(request):
     if f[u"pathSuffix"].endswith(".vcf") or f[u"pathSuffix"].endswith(".bam") or f[u"pathSuffix"].endswith(".fastq") or f[u"pathSuffix"].endswith(".fq"):
       filesList[f[u"pathSuffix"]] = "data/"+f[u"pathSuffix"]
   
-  result = {
+  final_result = {
     'status': -1,
     'data': 'Invalid data sent.'
   }
@@ -207,7 +207,6 @@ def api_insert_general(request):
   if request.method == 'POST':
     form = query_insert_form(request.POST, files=filesList)
     if form.is_valid():
-      file_id = form.cleaned_data['file_id']
       samples_ids = form.cleaned_data['samples_ids']
       selected_file = form.cleaned_data['import_file']
       
@@ -233,6 +232,10 @@ def api_insert_general(request):
         result = False
         pass
       
+      if not result:
+        final_result['status'] = 0 
+        final_result['data'] = 'Sorry, an error occured: Impossible to find the file, compress it or upload it.'
+        
       #If the compression was okay, we can insert the data in db
       if result:
         try:
@@ -242,6 +245,8 @@ def api_insert_general(request):
           dt = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         except Exception:
           get_cron_information("http://localhost:14000/webhdfs/v1/user/hdfs/compressed_data/"+destination+"?op=DELETE")
+          final_result['status'] = 0 
+          final_result['data'] = 'Sorry, an error occured: Impossible to connect to the db.'
           fprint("Impossible to connect to the database")
           result = False
           pass
@@ -276,14 +281,15 @@ def api_insert_general(request):
               handle = db.execute_and_wait(query, timeout_sec=5.0)
           
             #We can insert the data now.
-            query = hql_query("INSERT INTO TABLE sample_files VALUES ('"+file_id+"', '"+internal_sample_id+"', '"+destination+"', '"+file_type+"', '"+dt+"', '"+dt+"')")
+            query = hql_query("INSERT INTO TABLE sample_files VALUES ('"+file_random_id+"', '"+internal_sample_id+"', '"+destination+"', '"+file_type+"', '"+dt+"', '"+dt+"')")
             handle = db.execute_and_wait(query, timeout_sec=5.0)
        
         #End
-        result['data'] = 'Data correctly added.'
+        final_result['status'] = 1 
+        final_result['data'] = 'Data correctly added.'
       
   #Returning the data
-  return HttpResponse(json.dumps(result), mimetype="application/json")
+  return HttpResponse(json.dumps(final_result), mimetype="application/json")
   
 """ ************** """
 """ SOME FUNCTIONS """
@@ -296,7 +302,6 @@ def get_cron_information(url, post_parameters=False):
     url += "&user.name=cloudera"
   else:
     url += "?user.name=cloudera"
-  fprint("Access to: "+url)
   
   c = pycurl.Curl()
   c.setopt(pycurl.URL, str(url))
@@ -319,7 +324,6 @@ def upload_cron_information(url, filename):
     url += "&user.name=cloudera"
   else:
     url += "?user.name=cloudera"
-  fprint(url)
   
   #Setting the headers to say that we are uploading a file. See http://www.saltycrane.com/blog/2012/08/example-posting-binary-data-using-pycurl/
   c = pycurl.Curl()
@@ -402,8 +406,7 @@ def compress_file(path, destination):
   while offset < file_length:
     length = min(file_length,1024*1024)
     txt = get_cron_information("http://localhost:14000/webhdfs/v1/user/hdfs/"+path+"?op=OPEN&offset="+str(offset)+"&length="+str(length)+"")
-    data += comp.compress(txt)
-    fprint(txt)    
+    data += comp.compress(txt) 
     
     #If we have already compressed some data we write them
     if len(data) > 10*1024*1024:
