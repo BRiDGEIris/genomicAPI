@@ -19,4 +19,5 @@ from django.conf.urls.defaults import patterns, url
 
 urlpatterns = patterns('importfiles_updateDB',
   url(r'^$', 'views.index'),
+  url(r'^copyFile/$', 'views.copyFile'),
 )

@@ -77,7 +77,31 @@ def index(request):
   result['status'] = 0
   return HttpResponse(json.dumps(result), mimetype="application/json")
 
-
+def copyFile(request):
+  result = {
+    'status': -1,
+    'data' : {}
+  }
+  orig = '/user/cloudera/test'
+  dest = '/user/cloudera/data/dest'
+  username = request.user.username
+  already_exists = False
+  try:
+    already_exists = request.fs.exists(orig)
+  except Exception:
+    pass
+  if not already_exists:
+    request.fs.create(orig)
+  try:
+    # renaming
+    #request.fs.do_as_user(username, request.fs.rename, orig, dest)
+    # copying 
+    request.fs.copy(orig, dest, recursive=True, owner=request.user)
+    result['data'] = dest
+  except Exception:
+    pass
+  return HttpResponse(json.dumps(result), mimetype="application/json")
+  
 # def index(request):
 #   result = {
 #     'status': -1,
