@@ -21,7 +21,7 @@ from desktop.context_processors import get_app_name
 from desktop.lib.django_util import render
 from django.http import HttpResponse
 
-import datetime
+from datetime import datetime
 
 from beeswax.design import hql_query
 from beeswax.server import dbms
@@ -29,28 +29,74 @@ from beeswax.server.dbms import get_query_server_config
 
 from impala.models import Dashboard, Controller
 
+from hadoop.fs.hadoopfs import Hdfs
+from django.template.defaultfilters import stringformat, filesizeformat
+from filebrowser.lib.rwx import filetype, rwx
 # def index(request):
 #   return render('index.mako', request, dict(date=datetime.datetime.now()))
+
+
+def _massage_stats(request, stats):
+  """
+  Massage a stats record as returned by the filesystem implementation
+  into the format that the views would like it in.
+  """
+  path = stats['path']
+  normalized = Hdfs.normpath(path)
+  return {
+    'path': normalized,
+    'name': stats['name'],
+    'stats': stats.to_json_dict(),
+    'mtime': datetime.fromtimestamp(stats['mtime']).strftime('%B %d, %Y %I:%M %p'),
+    'humansize': filesizeformat(stats['size']),
+    'type': filetype(stats['mode']),
+    'rwx': rwx(stats['mode'], stats['aclBit']),
+    'mode': stringformat(stats['mode'], "o")
+    #'url': make_absolute(request, "view", dict(path=urlquote(normalized))),
+    #'is_sentry_managed': request.fs.is_sentry_managed(path)
+    }
+
 
 def index(request):
   result = {
     'status': -1,
-    'data': {}
+    'data' : {}
   }
-  # app_name = get_app_name(request)
-  # query_server = get_query_server_config(app_name)  
-  query_server = get_query_server_config(name='impala')
-  db = dbms.get(request.user, query_server=query_server)
+  
+  # Redirect to home directory by default
+  path = request.user.get_home_directory()
+  try:
+    if not request.fs.isdir(path):
+      path = '/'
+  except Exception:
+    pass
+  stats = request.fs.listdir_stats(path)
+  data = dict()
+  data['files'] = [_massage_stats(request, stat) for stat in stats]
+  result['data'] = data
+  result['status'] = 0
+  return HttpResponse(json.dumps(result), mimetype="application/json")
+
+
+# def index(request):
+#   result = {
+#     'status': -1,
+#     'data': {}
+#   }
+#   # app_name = get_app_name(request)
+#   # query_server = get_query_server_config(app_name)  
+#   query_server = get_query_server_config(name='impala')
+#   db = dbms.get(request.user, query_server=query_server)
     
 
-  #hql = "SELECT * FROM testset"
-  hql = "INSERT INTO TABLE testset ( patientid,variantid,qual ) VALUES ( 'patient11','variant23',29);"
-  query = hql_query(hql)
-  handle = db.execute_and_wait(query, timeout_sec=5.0)
-  if handle:
-    data = db.fetch(handle, rows=100)
-    result['data'] = list(data.rows())
-    db.close(handle)
+#   #hql = "SELECT * FROM testset"
+#   hql = "INSERT INTO TABLE testset ( patientid,variantid,qual ) VALUES ( 'patient11','variant23',29);"
+#   query = hql_query(hql)
+#   handle = db.execute_and_wait(query, timeout_sec=5.0)
+#   if handle:
+#     data = db.fetch(handle, rows=100)
+#     result['data'] = list(data.rows())
+#     db.close(handle)
 
-  return HttpResponse(json.dumps(result), mimetype="application/json")
+#   return HttpResponse(json.dumps(result), mimetype="application/json")
   
